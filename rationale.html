@@ -63,10 +63,24 @@
     <!-- Intro Content -->
       <div>
         <h2>Design Rationale</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed voluptate nihil eum consectetur similique? Consectetur, quod, incidunt, harum nisi dolores delectus reprehenderit voluptatem perferendis dicta dolorem non blanditiis ex fugiat.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe, magni, aperiam vitae illum voluptatum aut sequi impedit non velit ab ea pariatur sint quidem corporis eveniet. Odit, temporibus reprehenderit dolorum!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et, consequuntur, modi mollitia corporis ipsa voluptate corrupti eum ratione ex ea praesentium quibusdam? Aut, in eum facere corrupti necessitatibus perspiciatis quis?</p>
-      </div>
+        <i><h3>Event Driven Architecture</h3></i>
+        <p>This architecture was chosen because health measurements are best modeled in events. The change in a vital sign or activity is a key data point for the user, their caregiver and provider. Also, due to the need for alerting, constant events ensure that there is no lapse in monitoring.</p>
+        <br/>
+        <i><h3>Real-Time Streaming Analytics for Emergencies/Alerting</h3></i>
+        <p>Events without streaming analytics end up being stateless and cannot filter out white noise or make smart alerts. A bespoke blood oxygen and heart rate measurement on their own might not mean much, but together with a history for that person can save someone's life. In near real-time, the ability to tastefully look at a user's history and leverage data science techniques to decipher what alerts should make it out (white noise is a bad side effect for downstream altering) would make adopting this platform even easier and with more satisfied customers.</p>
+        <br/>
+        <i><h3>Microservices</h3></i>
+        <p>This application is related to health monitoring in real-time, with thousands of users. This causes scaling and reliability requirements to ensure the application is up 99.9% of the time with failover. Using containerized microservices allows for smart and automated scale up and down and can gracefully migrate users from one endpoint to another or even make a new one. This makes the implementation less trivial but will pay dividends in customer experience and eliminate significant application support teams.</p>
+        <br/>
+        <i><h3>Cloud for Security & HIPAA</h3></i>
+        <p>In 2020, the most secure way to store data, if an internet connection is required, is in the cloud. Amazon Web Services (AWS) provides data storage and transfer through secure and durable networks. We can store and backup our medical data utilizing different AWS products. We can encrypt our patient health information (PHI) on both the client and server-side. Given that AWS is HIPAA compliant, it is critical to leverage these resources as their scalability, performance, and operations are near flawless and reduce the headache of managing a HIPAA certified on-premise data center and its supporting applications to access that data center. </p>
+        <br/>
+        <i><h3>Scalability & Reusability</h3></i>
+        <p>Modern day technology requires applications to be usable on multiple platforms, so building an application with reuse in mind will enable EDNA to be accessible by the masses and will help to scale across the different technologies. The reusability component will also ensure ease when it comes to maintenance for the future, as the areas of the system requiring updates will be modularized, making it easier to make updates in a single location that goes across all platforms.</p>
+        <br/>
+        <i><h3>Usability</h3></i>
+        <p>Since EDNA Care will involve many different users from varying experiences with technology, creating an application with high usability will be key in the design requirements. By ensuring that the application is available by mobile phones or desktop computers, and can bidirectionally capture data from the application and/or wearable devices, the amount of times data needs to be inputted will be limited which helps to increase the ease of use. Additionally, having a profile set up that will allow certain users access to a patient's information will also help users who may not be as technically able as others to access and use the system.</p>
+    </div>
    
     <!-- /.row -->
 
