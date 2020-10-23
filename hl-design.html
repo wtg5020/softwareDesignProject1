@@ -63,10 +63,642 @@
     <!-- Intro Content -->
       <div>
         <h2>High Level Design</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed voluptate nihil eum consectetur similique? Consectetur, quod, incidunt, harum nisi dolores delectus reprehenderit voluptatem perferendis dicta dolorem non blanditiis ex fugiat.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe, magni, aperiam vitae illum voluptatum aut sequi impedit non velit ab ea pariatur sint quidem corporis eveniet. Odit, temporibus reprehenderit dolorum!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et, consequuntur, modi mollitia corporis ipsa voluptate corrupti eum ratione ex ea praesentium quibusdam? Aut, in eum facere corrupti necessitatibus perspiciatis quis?</p>
+        <p>There are many reasons as to why architectural design choices matter for this system. This system will need to be highly scalable, distributed, and cloud-based, to allow thousands of devices to stream data from the system while alerting thousands of other devices. The architectural choices will also have to provide the ability to be flexible and maintainable; there will be constant changes in the algorithms due to new inputs and outputs. Having a clear and understandable architecture will be critical in ensuring the maintainability of this system. Additionally, data storage must be fast and flexible to allow for multiple avenues of sourcing. The system must be designed with modularity to encourage reuse between the different inputs of third-party fitness and health trackers. Additionally, the system will need the tightest security to ensure it meets all HIPAA requirements and prevents any PII data leaks. Lastly, the architecture will need to provide a user interface accessible on both mobile apps and web apps and allows for alerts to be broadcast from specific triggers and algorithms sent to various groups.</p>
+        <p>The system is made up of a streaming analytics architecture, also known as the engine. As well as a client-server MVC architecture for a web application and companion mobile applications with graphical user interfaces. The "business logic" in the engine is at the lowest level, an event driven system. These events get aggregated, inspected, and alerted upon. The web application is only used for settings and virtual communication between parties. Finally, leveraging third party SDKs and mobile applications to help collect data ensures that any customer can go onboard to the platform and keeps the engine from becoming out of date with future wearables and phones.</p>
+        <p>Both of these modules will be deployed using containerized images to allow for cloud-agnostic and even hybrid cloud deployments to ensure the applications' reliability and longevity regardless of infrastructure decisioning. The data storage tier will consist of Key-Value cloud datastores (DynamoDB, Cloud Datastore, etc.) that are HIPAA compliant, performant, and highly extensible. Global unique IDs tracking a person without associating their PII will be leveraged and enable enrichment of personalized feature vectors regarding the events they generate. </p>
       </div>
+    <br/>
+    <div>
+      <h3>Engine</h3>
+      <p>The design of the application as a whole uses two architectures. The first is what powers the application, otherwise known as the engine. The engine will follow a fairly new but extremely popular design pattern of streaming analytics. This pattern involves a streaming platform; in this case, Apache Kafka (Amazon Kinesis, Google Pub-Sub, and Spark Streaming were evaluated, but all are either feature or cost-prohibitive). The Apache Kafka platform will allow the engine to interface with thousands (or millions) of the users' wearable devices and their cell phones, on a unified platform that is multi-tenant and encrypted to ensure no leakage of PII or HIPAA data. There will be producer micro apps that help integrate with non-partner wearables using a phone app with Bluetooth. Our eventual partner wearables, as well as existing ones from larger brands Garmin, Apple, and others, will leverage the SDKs to create partner apps on the devices to stream data to the engine's Kafka topics.</p>
+      <p>Once in the topics (there will be topics that are broken out by device, with the person's UID mapping all the data together), the data will be processed as it comes in using the Streams API. This API allows the engine to process data as it sees it and fetch state from the feature (data science feature vectors) and operational data. This process will then publish to another set of topics for each observed event. Another streams Application will aggregate these events over time, as well as apply logic against them to see if an aggregation metric (blood oxygen trending down for more than 10 minutes) or a point metric (extremely low heart rate) to send alerts to subscribed caregivers, medical providers or even emergency medical personnel. Since Kafka plays the best with Java, and most cloud providers have the largest SDK support for the JVM, this module will be written in Java. </p>
+    </div>
+    <br/>
+    <div>
+      <h3>Web & Mobile Application</h3>
+      <p>The web app and mobile app will be for settings management, visualization, and communication between the three actors in the system. There is a caveat that the user's mobile application (and apple watch app, for example) will be the producer of streaming data to the engine. An MVC with a client/server architecture is how it will be built. This will ensure that the underlying data tier (getting bespoke user data from the shared cloud datastores, as well as routes, to tweak rules engine settings) can stay the same, but front end implementation could be swapped in the future if something more advanced than Vue.js came out. The server side will use the Spring framework. This framework can also be used for the engine Java code, allowing for similar patterns and shared developers/resources. The client-side will be written in Vue due to its reactivity and ease of implementation that yields extremely good looking pages. The Android application will use native Kotlin and Swift for the iPhone/Apple Watch applications; however, these will still leverage the unified server-side REST APIs. An RPC like REST is better for this module as we want secure and guaranteed data transmission between the server and client. </p>
+    </div>
+    <br/>
+    <div>
+        <h3>Traceability Matrix</h3>
+        <p>When analyzing the scope of the use cases and requirements outlined earlier in this document, a design for top-level architecture naturally fell into several different components: user interface, alerts, wearables, platform, and security/maintenance. After defining these components, the functional and non-functional requirements were separated into their corresponding component, and specific technical design requirements were identified to address each functional requirement. As you may notice, when reviewing the traceability matrix table below, some functional requirements require more than one design component and have been broken down to reflect this.</p>
+        <p>Once the design components were identified, the different architectures were analyzed to see, which could best fit the requirements and design specifications. After careful consideration, the event-driven architecture was selected as the EDNA system relies heavily on algorithm-driven threshold alerts and notifications.</p>
+        <br/>
+      <p>&nbsp;<strong>Figure X: EDNA Care Traceability Matrix - Functional Requirements</strong></p>
+      <table style="width: 1024px;">
+      <tbody>
+      <tr>
+      <td style="width: 80px;">
+      <p style="text-align: center;"><strong>Requirement #</strong></p>
+      </td>
+      <td style="width: 38px; text-align: center;">
+      <p><strong>Design #</strong></p>
+      </td>
+      <td style="width: 207.333px; text-align: center;" colspan="3">
+      <p><strong>Design Component</strong></p>
+      </td>
+      <td style="width: 697px;">
+      <p style="text-align: center;"><strong>Justification</strong></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-1</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-1</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The user interface component of the architecture will provide a portal for users to login and/or register for EDNA.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-2</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-2</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The user interface component of the architecture will provide a portal for users to see their profile information which contains their metrics and personal information.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-3</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-1</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The platform shall send push notifications to the parties indicated from the user&rsquo;s profile. These notifications shall be sent to the receiving party&rsquo;s EDNA application.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-4</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-3</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The user interface will be provided from a web application accessible via desktop computers, and includes a mobile application for phones, which in turn collects and utilizes data from the user&rsquo;s paired wearable technology.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-4</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">W-1</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Wearables</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The data from the patient&rsquo;s wearables can be accessed from the mobile application it is paired with.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-5</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-4</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The user interface will provide doctors and medical professionals the information needed to contact the patient&rsquo;s family and/or caregivers.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-6</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">P-1</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The platform&rsquo;s algorithms will constantly be analyzing the data of the patient from wearable technology, and identify any out of tolerance metrics for blood oxygen levels.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-6</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-2</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">When a threshold of an algorithm is reached for rapidly decreasing blood oxygen levels, the system will send push notifications to the EDNA users listed in the patient&rsquo;s contacts in their profile.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-7</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">P-2</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The platform&rsquo;s algorithms will constantly be analyzing the data of the patient from wearable technology, and identify any out of tolerance metrics for </span><span style="font-weight: 400;">medical anomalies.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-7</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-3</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">When a threshold of an algorithm is reached for a medical abnormality, the system will send push notifications to the EDNA users listed in the patient&rsquo;s contacts in their profile.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-8</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-5</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">In the profile section of the web/mobile application, users can indicate alerts they would like to receive and add appointments.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-8</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-4</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">A week before the designated appointment window, the user shall receive a push notification to their phone to remind them of the appointment date/time.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-8</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-5</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">Alerts will generate when tasks on the users profile are completed.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-8</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-6</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">Alerts will be generated when a medical issue is added to a users profile and updates are added to this medical issue (such as appointment check-ins, bloodwork results, etc.)</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-9</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">SM-1</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The platform will be able to receive input from fingerprint scanners to bypass login entry from username and password.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-10</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">SM-2</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">After 3 unsuccessful tries of logging in with the fingerprint scanner, users will be routed to the login portal to enter their username and password for authentication.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-11</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">SM-3</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The system shall be built with portability in mind so that it is accessible from both iOS and Android phones, as well as most web browsers.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-12</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">P-3</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">Using the location from the user&rsquo;s mobile phone, their geo-location coordinates will be recorded and monitored against the system&rsquo;s algorithms to detect unusual movement.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-12</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">A-7</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Alerts</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">If a user is detected in an unusual location, an alert is pushed to the contacts in their profile.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-12</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">UI-6</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">If a user is missing, the contacts can login to their EDNA application and view the current location of the patient.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td style="width: 70px;">
+      <p><span style="font-weight: 400;">FR-13</span></p>
+      </td>
+      <td style="width: 38px;">
+      <p><span style="font-weight: 400;">P-4</span></p>
+      </td>
+      <td style="width: 207.333px;" colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td style="width: 707px;">
+      <p><span style="font-weight: 400;">The data collected from the wearable technology, the web/mobile application, and user profile information can be accessed and updated near real-time using bidirectional messages from the database in the platform to the application.</span></p>
+      </td>
+      </tr>
+      </tbody>
+      </table>
+      </div>
+      <br/>
+      <p>&nbsp;<strong>Figure X: EDNA Care Traceability Matrix - Non-Functional Requirements</strong></p>
+      <p>&nbsp;</p>
+      <table>
+      <tbody>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">Requirement #</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Design #</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Design Component</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Justification</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-1</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-5</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The Platform will use an API such as Streams API which will allow the system to access disparate sources of data as needed.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-2</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-6</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">A Key Value cloud datastore will be utilized to ensure high availability and multiple locations in the event of a disaster.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-3</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-7</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The system will be built with reusability and modularity in mind so that the application can be scaled to new mobile devices and can be used by many different systems and users.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-4</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">W-2</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Wearables</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The system shall allow connectivity to wearable technology to access biometric data for the platform.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-4</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">UI-7</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">User Interface</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The user interface shall allow users the ability to view their data and enter in new biometric data.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-5</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-4</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Creating a unified platform that is multi-tenant and encrypted to ensure no data leakages.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-6</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-5</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The application will only be accessible on the industry recommended latest operating systems for mobile devices to ensure system security.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-7</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-6</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Data storage will be encrypted to ensure it complies with HIPAA and FEDRAMP requirements.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-8</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-7</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The system will require authentication via fingerprint scanner or a login with username and password to access the data applicable only to the person logged in.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-9</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-8</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Data will always remain encrypted so the personal information is protected. The user of the system will have the option of allowing others to see their data, which they enable/disable from their profile of the app. This restricts data access to just those users, specific to the users data.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-10</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-8</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Using cloud technology will enable the system to have high availability and lessons the risk of a potential outage.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-11</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-9</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Utilizing a modern face ID and/or fingerprint scanner will allow quick and secure access to the system.&nbsp;</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-12</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-10</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The system will utilize built in fingerprint/facial recognition technologies on mobile phones to reduce the amount of incorrect logins.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-13</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-11</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">The system will use </span><span style="font-weight: 400;">Key Value cloud datastore to ensure data remains encrypted and protected.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-14</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-12</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">System clone backups shall occur on a minimum of a daily basis; using cloud technologies clone backups can occur early and often.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-15</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-13</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Cloud technologies will store backups at different geolocations to ensure high availability.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-16</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-9</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">By utilizing </span><span style="font-weight: 400;">Apache Kafka the system will be able to integrate with many users and technology systems.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-17</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">SM-14</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Security/Maintenance</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Data will be restricted to users based on the user who is logged in and any other users granted access by that user. No other data will be available to that user. These restrictions will be group and role based to ensure ease of maintainability and heightened security.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-18</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-10</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">Utilizing Apache Kafka and Cloud Database technologies, accessing the system will be near-real time which will allow for bidirectional updates and alerting based on those recent updates.</span></p>
+      </td>
+      </tr>
+      <tr>
+      <td>
+      <p><span style="font-weight: 400;">NFR-19</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">P-11</span></p>
+      </td>
+      <td colspan="3">
+      <p><span style="font-weight: 400;">Platform</span></p>
+      </td>
+      <td>
+      <p><span style="font-weight: 400;">By utilizing machine learning and modular coding techniques, machine learning models can be easily swapped out as needed to improve algorithms and alerting capabilities.</span></p>
+      </td>
+      </tr>
+      </tbody>
+      </table>
    
     <!-- /.row -->
 
