@@ -63,9 +63,61 @@
     <!-- Intro Content -->
       <div>
         <h2>Requirements</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sed voluptate nihil eum consectetur similique? Consectetur, quod, incidunt, harum nisi dolores delectus reprehenderit voluptatem perferendis dicta dolorem non blanditiis ex fugiat.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe, magni, aperiam vitae illum voluptatum aut sequi impedit non velit ab ea pariatur sint quidem corporis eveniet. Odit, temporibus reprehenderit dolorum!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et, consequuntur, modi mollitia corporis ipsa voluptate corrupti eum ratione ex ea praesentium quibusdam? Aut, in eum facere corrupti necessitatibus perspiciatis quis?</p>
+        <h3>Functional Requirements</h3>
+        <p>The following are the functional requirements for the system:</p>
+        <br/>
+        <ul>
+          <li>FR-1. The application shall allow caregivers and patients to register an account.</li>
+          <li>FR-2. The application shall provide a user interface to allow its user to access their metrics and update their personal information.</li>
+          <li>FR-3. The application shall enable notifications to be sent to the requested parties.</li>
+          <li>FR-4. The application shall interface with various technologies such as wearable technologies, mobile phones, and desktop computers.</li>
+          <li>FR-5. The application shall allow direct communication between the doctor and caregiver.</li>
+          <li>FR-6 The application shall warn the caregiver and doctor if the patient's blood oxygen decreases rapidly.</li>
+          <li>FR-7 The application shall warn the caregiver and doctor if there are any medical anomalies.</li>
+          <li>FR-8. The application shall support patients' and caregivers' ability to create appointment reminders and alerts for a wide range of medical issues and tasks.</li>
+          <li>FR-9. The application shall support external fingerprint scanning for extra security.</li>
+          <li>FR-10. The application shall have a backup way to sign in and out in case of a fingerprint scanner error.</li>
+          <li>FR-11. The application shall exist between different mobile operating systems such as iOS and Android.</li>
+          <li>FR-12. The application shall provide geolocation to help find a patient in case of an emergency.</li>
+          <li>FR-13. The application shall allow bidirectional synchronous communication between the user and the data source in real-time.</li>
+        </ul>
+        <br/>
+        <h3>Non-Functional Requirements</h3>
+        <p>These Non-Functional requirements impose constraints under which the application we are developing has to function. The following are the requirements that we are explicitly defining and hold for each customer instance.</p>
+        <h4>Architecture:</h4>
+        <ul>
+          <li>NFR-1. Allow for disparate data sources to be ingested in a multi-tenant and performant manner. (Apache Kafka or Kinesis streams)</li>
+          <li>NFR-2. Multiple location cloud production environments.</li>
+          <li>NFR-3. Containerized services for quick swapping/ability for hybrid strategy in the future.</li>
+          <li>NFR-4. Web and mobile endpoints that help collect and analyze data, multi-role users.</li>
+        </ul>
+        <h4>Security:</h4>
+        <ul>
+          <li style="font-weight: 400;"><span style="font-weight: 400;">NFR-5. The application must comply with HIPAA regulations.</span></li>
+          <li style="font-weight: 400;"><span style="font-weight: 400;">NFR-6. Only run on specific versions of devices for security reasons.</span></li>
+          <li style="font-weight: 400;"><span style="font-weight: 400;">NFR-7. Data storage must conform to HIPAA and FEDRAMP requirements.</span></li>
+        </ul>
+        <h4>Safety:</h4>
+        <ul>
+          <li>NFR-8. Data from the database will never be transmitted to unauthenticated sources.</li>
+          <li>NFR-9. The application will never disclose patient information to users that are not authorized to see it.</li>
+        </ul>
+        <h4>Availability:</h4>
+        <ul>
+          <li>NFR-10. The application should be available 99.99% of the time.</li>
+        </ul>
+        <h4>Performance:</h4>
+        <ul>
+          <li>NFR-11. The application shall take no more than 2 seconds to access.</li>
+          <li>NFR-12. The application's fingerprint scanning shall recognize registered users 95% of the time.</li>
+          <li>NFR-13. The application shall take the appropriate measures to ensure data servers are secured.</li>
+          <li>NFR-14. Data backups should be created daily (minimum).</li>
+          <li>NFR-15. Data backups should be securely stored separately.</li>
+          <li>NFR-16. A private REST API should be available for third-party, desktop, or mobile application integration.</li>
+          <li>NFR-17. The access to all data should take a least privilege approach.</li>
+          <li>NFR-18. Data streaming should be processed near real-time.</li>
+          <li>NFR-19. The application shall have the ability to change out algorithms for smart altering.</li>
+        </ul>
       </div>
    
     <!-- /.row -->
