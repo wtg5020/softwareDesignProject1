@@ -42,9 +42,6 @@
             <a class="nav-link" href="hl-design.html">High-Level Design</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="modules.html">Modules</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="rationale.html">Design Rationale</a>
           </li>
           <li class="nav-item">
@@ -67,6 +64,8 @@
       </div>
     <br/>
     <div>
+      <h3>Modules</h3>
+    <div>
       <h3>Engine</h3>
       <p>The design of the application as a whole uses two architectures. The first is what powers the application, otherwise known as the engine. The engine will follow a fairly new but extremely popular design pattern of streaming analytics. This pattern involves a streaming platform; in this case, Apache Kafka (Amazon Kinesis, Google Pub-Sub, and Spark Streaming were evaluated, but all are either feature or cost-prohibitive). The Apache Kafka platform will allow the engine to interface with thousands (or millions) of the users' wearable devices and their cell phones, on a unified platform that is multi-tenant and encrypted to ensure no leakage of PII or HIPAA data. There will be producer micro apps that help integrate with non-partner wearables using a phone app with Bluetooth. Our eventual partner wearables, as well as existing ones from larger brands Garmin, Apple, and others, will leverage the SDKs to create partner apps on the devices to stream data to the engine's Kafka topics.</p>
       <p>Once in the topics (there will be topics that are broken out by device, with the person's UID mapping all the data together), the data will be processed as it comes in using the Streams API. This API allows the engine to process data as it sees it and fetch state from the feature (data science feature vectors) and operational data. This process will then publish to another set of topics for each observed event. Another streams Application will aggregate these events over time, as well as apply logic against them to see if an aggregation metric (blood oxygen trending down for more than 10 minutes) or a point metric (extremely low heart rate) to send alerts to subscribed caregivers, medical providers or even emergency medical personnel. Since Kafka plays the best with Java, and most cloud providers have the largest SDK support for the JVM, this module will be written in Java. </p>
@@ -76,6 +75,7 @@
       <h3>Web & Mobile Application</h3>
       <p>The web app and mobile app will be for settings management, visualization, and communication between the three actors in the system. There is a caveat that the user's mobile application (and apple watch app, for example) will be the producer of streaming data to the engine. An MVC with a client/server architecture is how it will be built. This will ensure that the underlying data tier (getting bespoke user data from the shared cloud datastores, as well as routes, to tweak rules engine settings) can stay the same, but front end implementation could be swapped in the future if something more advanced than Vue.js came out. The server side will use the Spring framework. This framework can also be used for the engine Java code, allowing for similar patterns and shared developers/resources. The client-side will be written in Vue due to its reactivity and ease of implementation that yields extremely good looking pages. The Android application will use native Kotlin and Swift for the iPhone/Apple Watch applications; however, these will still leverage the unified server-side REST APIs. An RPC like REST is better for this module as we want secure and guaranteed data transmission between the server and client. </p>
     </div>
+  </div>
     <br/>
     <div>
         <h3>Traceability Matrix</h3>
