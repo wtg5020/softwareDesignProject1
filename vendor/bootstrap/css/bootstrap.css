@@ -562,6 +562,7 @@ pre code {
 @media (min-width: 992px) {
   .container {
     max-width: 960px;
+    height: auto;
   }
 }
 
@@ -594,6 +595,7 @@ pre code {
 @media (min-width: 992px) {
   .container, .container-sm, .container-md, .container-lg {
     max-width: 960px;
+    height: auto;
   }
 }
 
