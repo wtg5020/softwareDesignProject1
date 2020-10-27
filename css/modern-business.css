@@ -36,3 +36,14 @@ td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
+.nav-link {
+    display: block;
+    padding: .5rem 1rem;
+    color: white !important;
+}
+
+.navbar-brand:focus, .navbar-brand:hover {
+    text-decoration: none;
+    color: #0056b3 !important;
+}
